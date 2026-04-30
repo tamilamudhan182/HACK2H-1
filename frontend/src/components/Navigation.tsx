@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Compass, CheckSquare, Clock, HelpCircle } from "lucide-react";
 
 const links = [
@@ -13,21 +13,34 @@ const links = [
 
 export function Navigation() {
   const pathname = usePathname();
+  const { scrollY } = useScroll();
+  
+  const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
+  const headerScale = useTransform(scrollY, [0, 50], [1, 0.98]);
+  const headerBlur = useTransform(scrollY, [0, 50], ["0px", "12px"]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-ink/60 backdrop-blur-md border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <motion.header 
+      style={{ 
+        backgroundColor: `rgba(3, 8, 22, ${headerOpacity.get()})`,
+        backdropFilter: `blur(${headerBlur.get()})`
+      }}
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl rounded-2xl border border-white/10 premium-glass transition-all"
+    >
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <Compass className="w-8 h-8 text-cyan group-hover:rotate-180 transition-transform duration-700" />
-            <span className="text-xl font-bold font-['var(--font-display)'] text-white tracking-wide">
-              Election Compass
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-cyan/10 flex items-center justify-center group-hover:rotate-12 transition-all group-hover:cyan-glow">
+              <Compass className="w-6 h-6 text-cyan" />
+            </div>
+            <span className="text-xl font-bold font-['Outfit'] text-white tracking-tight">
+              Election <span className="text-cyan">Compass</span>
             </span>
           </Link>
 
           {/* Nav Links */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center gap-2">
             {links.map((link) => {
               const isActive = pathname.startsWith(link.href);
               const Icon = link.icon;
@@ -35,16 +48,16 @@ export function Navigation() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`flex items-center gap-2 relative px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive ? "text-cyan" : "text-mist/70 hover:text-white"
+                  className={`flex items-center gap-2 relative px-4 py-2 text-sm font-semibold transition-all rounded-xl ${
+                    isActive ? "text-cyan bg-cyan/5" : "text-slate-400 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                   {link.name}
                   {isActive && (
                     <motion.div
-                      layoutId="active-nav"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan rounded-full"
+                      layoutId="active-nav-bg"
+                      className="absolute inset-0 bg-cyan/10 rounded-xl -z-10 border border-cyan/20"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -52,8 +65,18 @@ export function Navigation() {
               );
             })}
           </nav>
+
+          {/* Action Button */}
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent("open-assistant"))}
+              className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-bold hover:bg-cyan/10 hover:text-cyan hover:border-cyan/30 transition-all cursor-pointer"
+            >
+              Ask AI
+            </button>
+          </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }

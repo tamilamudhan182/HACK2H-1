@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Sparkles, Loader2, ExternalLink } from "lucide-react";
+import { MessageSquare, X, Send, Sparkles, Loader2, ExternalLink, Bot } from "lucide-react";
 import { askAssistant } from "@/lib/api";
 import { defaultProfile } from "@/lib/default-profile";
 import type { AssistantReply } from "@/lib/types";
@@ -23,53 +23,34 @@ const SUGGESTED = [
 export function InteractiveAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm your Election Assistant 🗳️ Ask me anything about the election process, deadlines, or voter documents." }
+    { role: "assistant", content: "Greetings! I'm your premium Election Assistant. How can I facilitate your civic journey today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Listen for custom event from other pages (e.g. FAQ page's "Open Assistant" button)
   useEffect(() => {
     const handler = () => setIsOpen(true);
     window.addEventListener("open-assistant", handler);
     return () => window.removeEventListener("open-assistant", handler);
   }, []);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
-
     const userMsg: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const reply = await askAssistant({
-        query: text,
-        profile: defaultProfile,
-      });
-      setMessages(prev => [
-        ...prev,
-        {
-          role: "assistant",
-          content: reply.answer,
-          actions: reply.actions,
-        }
-      ]);
+      const reply = await askAssistant({ query: text, profile: defaultProfile });
+      setMessages(prev => [...prev, { role: "assistant", content: reply.answer, actions: reply.actions }]);
     } catch {
-      setMessages(prev => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "I'm having trouble connecting right now. Please check the FAQs or Timeline for information.",
-        }
-      ]);
+      setMessages(prev => [...prev, { role: "assistant", content: "I'm experiencing a momentary disconnect. Please consult our FAQs or Timeline." }]);
     } finally {
       setLoading(false);
     }
@@ -82,129 +63,118 @@ export function InteractiveAssistant() {
 
   return (
     <>
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Premium */}
       <motion.button
-        className="fixed bottom-6 right-6 z-50 p-4 bg-cyan text-ink rounded-full shadow-[0_0_20px_rgba(89,213,224,0.4)] hover:shadow-[0_0_30px_rgba(89,213,224,0.6)] transition-shadow"
+        className="fixed bottom-8 right-8 z-50 p-5 bg-cyan text-ink rounded-2xl shadow-[0_10px_40px_rgba(34,211,238,0.4)] hover:shadow-[0_15px_50px_rgba(34,211,238,0.6)] transition-all hover:-translate-y-1"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
         initial={false}
-        animate={isOpen ? { scale: 0, opacity: 0, pointerEvents: "none" } : { scale: 1, opacity: 1 }}
-        aria-label="Open election assistant"
+        animate={isOpen ? { scale: 0, opacity: 0 } : { scale: 1, opacity: 1 }}
+        aria-label="Open AI Assistant"
       >
-        <MessageSquare className="w-6 h-6" />
+        <Bot className="w-7 h-7" />
       </motion.button>
 
-      {/* Chat Window */}
+      {/* Chat Window - Million Dollar Design */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] h-[560px] flex flex-col bg-ink/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-panel"
+            initial={{ opacity: 0, y: 40, scale: 0.9, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 40, scale: 0.9, filter: "blur(10px)" }}
+            className="fixed bottom-8 right-8 z-50 w-[420px] h-[650px] flex flex-col premium-glass rounded-[2.5rem] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-white/10"
             role="dialog"
-            aria-label="Election Assistant Chat"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-white/5 shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-cyan/20 rounded-lg">
-                  <Sparkles className="w-4 h-4 text-cyan" />
+            {/* Header - Immersive */}
+            <div className="p-6 bg-white/[0.03] border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-cyan/10 flex items-center justify-center cyan-glow">
+                  <Sparkles className="w-6 h-6 text-cyan" />
                 </div>
                 <div>
-                  <span className="font-semibold text-mist block text-sm">Election Assistant</span>
-                  <span className="text-xs text-cyan/70">Powered by context engine</span>
+                  <h3 className="font-bold text-white text-lg leading-none">Civic AI</h3>
+                  <p className="text-cyan/60 text-[10px] font-bold tracking-widest uppercase mt-1">Advanced Engine</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 text-mist/50 hover:text-mist transition-colors"
-                aria-label="Close assistant"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={() => setIsOpen(false)} className="p-2 text-slate-500 hover:text-white transition-colors">
+                <X className="w-6 h-6" />
               </button>
             </div>
 
-            {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Messages Area - Refined */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] space-y-2`}>
-                    <div
-                      className={`p-3 rounded-2xl text-sm ${
-                        msg.role === "user"
-                          ? "bg-cyan text-ink rounded-tr-sm"
-                          : "bg-white/10 text-mist rounded-tl-sm border border-white/5"
-                      }`}
-                    >
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  key={i} 
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div className="max-w-[85%] space-y-3">
+                    <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                      msg.role === "user" 
+                        ? "bg-cyan text-ink font-semibold rounded-tr-none shadow-[0_4px_15px_rgba(34,211,238,0.2)]" 
+                        : "bg-white/[0.05] text-slate-200 border border-white/5 rounded-tl-none"
+                    }`}>
                       {msg.content}
                     </div>
-                    {/* Action buttons from the assistant response */}
-                    {msg.actions && msg.actions.length > 0 && (
-                      <div className="flex flex-col gap-1">
-                        {msg.actions.filter(a => a.type === "open-url").map((action, ai) => (
-                          <a
-                            key={ai}
-                            href={action.value}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-xs text-cyan hover:text-white transition-colors px-3 py-1.5 rounded-lg bg-cyan/10 border border-cyan/20 hover:bg-cyan/20"
+                    {msg.actions && (
+                      <div className="flex flex-wrap gap-2">
+                        {msg.actions.map((action, ai) => (
+                          <a 
+                            key={ai} 
+                            href={action.value} 
+                            target="_blank" 
+                            className="px-3 py-1.5 rounded-lg bg-cyan/10 border border-cyan/20 text-[10px] font-bold text-cyan hover:bg-cyan/20 transition-all flex items-center gap-2"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            {action.label}
+                            {action.label.toUpperCase()}
                           </a>
                         ))}
                       </div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
-
-              {/* Loading indicator */}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/10 rounded-2xl rounded-tl-sm border border-white/5 p-3 flex items-center gap-2 text-mist/60 text-sm">
+                  <div className="bg-white/[0.05] rounded-2xl rounded-tl-none p-4 flex items-center gap-3 text-slate-400 text-sm">
                     <Loader2 className="w-4 h-4 animate-spin text-cyan" />
-                    Thinking...
+                    Analyzing...
                   </div>
                 </div>
               )}
               <div ref={bottomRef} />
             </div>
 
-            {/* Suggested Queries */}
-            {messages.length <= 1 && (
-              <div className="px-4 pb-2 flex flex-wrap gap-2 shrink-0">
-                {SUGGESTED.map(q => (
-                  <button
-                    key={q}
-                    onClick={() => sendMessage(q)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-mist/70 hover:bg-cyan/10 hover:border-cyan/30 hover:text-white transition-all"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Input Area */}
-            <div className="p-4 border-t border-white/10 bg-black/20 shrink-0">
+            {/* Input Area - Premium */}
+            <div className="p-6 bg-black/20 border-t border-white/10">
+              {messages.length <= 1 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {SUGGESTED.map(q => (
+                    <button 
+                      key={q} 
+                      onClick={() => sendMessage(q)}
+                      className="text-[10px] font-bold px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-cyan/50 hover:bg-cyan/10 transition-all"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="relative">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about deadlines, booths, documents..."
-                  className="w-full pl-4 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-mist placeholder:text-mist/40 focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/50 transition-all"
-                  aria-label="Chat input"
-                  disabled={loading}
+                  placeholder="Inquire about milestones..."
+                  className="w-full pl-5 pr-14 py-4 bg-white/[0.05] border border-white/10 rounded-[1.5rem] text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/50 transition-all"
                 />
-                <button
-                  type="submit"
+                <button 
+                  type="submit" 
                   disabled={!input.trim() || loading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-cyan disabled:text-mist/20 transition-colors"
-                  aria-label="Send message"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-cyan text-ink rounded-xl shadow-lg disabled:opacity-30 transition-all hover:scale-105"
                 >
                   <Send className="w-4 h-4" />
                 </button>

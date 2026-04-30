@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/Navigation";
 import { InteractiveAssistant } from "@/components/InteractiveAssistant";
 
-const display = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["500", "600", "700"]
-});
-
-const body = Manrope({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
-  weight: ["400", "500", "600", "700"]
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
-  title: "Election Compass",
-  description: "A premium election journey assistant with timelines, tasking, and contextual guidance."
+  title: "Election Compass | Your Premium Civic Companion",
+  description: "Navigate the complex election landscape with precision, clarity, and the power of AI.",
 };
 
 export default function RootLayout({
@@ -27,10 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body suppressHydrationWarning className={`${display.variable} ${body.variable} antialiased bg-ink text-mist min-h-screen`}>
+    <html lang="en" className="dark">
+      <body suppressHydrationWarning className={`${outfit.variable} ${inter.variable} antialiased`}>
         <Navigation />
-        <main className="pt-16 min-h-screen">
+        <main className="pt-28 pb-20 min-h-screen relative">
           {children}
         </main>
         <InteractiveAssistant />

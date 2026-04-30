@@ -3,7 +3,11 @@ import { env } from "./config/env.js";
 
 const app = createApp();
 
-app.listen(env.PORT, () => {
-  console.log(`Election Compass backend running on http://localhost:${env.PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(env.PORT, () => {
+    console.log(`Election Compass backend running on http://localhost:${env.PORT}`);
+  });
+}
+
+export default app;
 
