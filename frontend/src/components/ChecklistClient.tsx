@@ -83,7 +83,7 @@ export function ChecklistClient() {
               strokeDasharray="439.8" 
               initial={{ strokeDashoffset: 439.8 }}
               animate={{ strokeDashoffset: 439.8 - (439.8 * progress) / 100 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
               strokeLinecap="round" 
             />
           </svg>
