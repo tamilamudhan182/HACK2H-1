@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import { ZodError } from "zod";
 import xss from "xss";
+import { rateLimit } from "express-rate-limit";
 import { env } from "./config/env.js";
 import assistantRoutes from "./routes/assistant.js";
 import googleRoutes from "./routes/google.js";
