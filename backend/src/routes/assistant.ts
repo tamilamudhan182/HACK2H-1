@@ -3,7 +3,12 @@ import { z } from "zod";
 import { answerElectionQuery } from "../services/contextEngine.js";
 import { trackEvent } from "../services/analytics.js";
 
+import { GoogleAIService } from "../services/googleAI.js";
+import { GoogleCloudLogger } from "../services/googleCloudLogging.js";
+
 const router = Router();
+const googleAI = GoogleAIService.getInstance();
+const cloudLogger = GoogleCloudLogger.getInstance();
 
 const assistantSchema = z.object({
   query: z.string().min(2),
@@ -16,14 +21,23 @@ const assistantSchema = z.object({
   })
 });
 
-router.post("/assistant/query", (request, response) => {
+router.post("/assistant/query", async (request, response) => {
   const payload = assistantSchema.parse(request.body);
-  const answer = answerElectionQuery(payload);
+  
+  cloudLogger.log('INFO', 'AI Assistant Query Received', { query: payload.query });
+
+  const aiResponse = await googleAI.generateCivicResponse(payload.query, payload);
+  const contextAnswer = answerElectionQuery(payload);
+
   trackEvent("assistant_query", {
     state: payload.profile.state,
-    stage: payload.selectedStage ?? answer.stage
+    stage: payload.selectedStage ?? contextAnswer.stage
   });
-  response.json(answer);
+
+  response.json({
+    ...contextAnswer,
+    text: aiResponse // Enhanced with Google Gemini AI
+  });
 });
 
 export default router;

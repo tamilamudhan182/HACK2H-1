@@ -27,12 +27,33 @@ function sanitizeValue(value: any): any {
   return value;
 }
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export function createApp() {
   const app = express();
 
+  app.use(limiter);
   app.use(
     helmet({
-      crossOriginResourcePolicy: false
+      crossOriginResourcePolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+          connectSrc: ["'self'", "https://*.googleapis.com", "https://*.vercel.app"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          objectSrc: ["'none'"],
+          upgradeInsecureRequests: [],
+        },
+      },
     })
   );
   app.use(

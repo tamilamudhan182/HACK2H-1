@@ -103,7 +103,11 @@ export function InteractiveAssistant() {
             </div>
 
             {/* Messages Area - Refined */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+            <div 
+              className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide"
+              aria-live="polite"
+              aria-relevant="additions"
+            >
               {messages.map((msg, i) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }} 

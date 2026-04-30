@@ -18,7 +18,12 @@ async function runTests() {
     if (healthRes.status !== 200 || !healthRes.body.ok) {
       throw new Error(`Health check failed: ${JSON.stringify(healthRes.body)}`);
     }
-    console.log("✅ Health check passed");
+    
+    // Security Header Checks
+    if (!healthRes.headers["content-security-policy"] || healthRes.headers["x-frame-options"] !== "SAMEORIGIN") {
+      throw new Error("Security headers missing or misconfigured");
+    }
+    console.log("✅ Health check & Security headers passed");
 
     // XSS Sanitization Check
     const xssRes = await request(app)

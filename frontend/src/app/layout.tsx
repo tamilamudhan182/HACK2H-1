@@ -27,8 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body suppressHydrationWarning className={`${outfit.variable} ${inter.variable} antialiased`}>
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-[100] px-4 py-2 bg-cyan text-white rounded-lg font-bold"
+        >
+          Skip to content
+        </a>
         <Navigation />
-        <main className="pt-28 pb-20 min-h-screen relative">
+        <main id="main-content" className="pt-28 pb-20 min-h-screen relative">
           {children}
         </main>
         <InteractiveAssistant />
